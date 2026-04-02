@@ -1,1 +1,79 @@
-Hi im Jamil im the instructor of scratch
+<!DOCTYPE html>
+<html>
+<head>
+<title>Scratch Learning</title>
+<style>
+body { font-family: Arial; background:#111; color:white; text-align:center; }
+button { padding:10px; margin:5px; border:none; background:#ff7b00; color:white; border-radius:8px; }
+.card { background:#222; padding:20px; margin:10px auto; border-radius:10px; max-width:600px; }
+</style>
+</head>
+
+<body>
+
+<h1>🎮 Scratch Learning</h1>
+
+<div class="card">
+<h2>🔐 Login</h2>
+<input id="emailInput" type="email" placeholder="Email"><br><br>
+<input id="passwordInput" type="password" placeholder="Password"><br><br>
+<button onclick="signup()">Sign Up</button>
+<button onclick="login()">Login</button>
+</div>
+
+<div class="card">
+<h2>🏆 Leaderboard</h2>
+<button onclick="loadLeaderboard()">Load Scores</button>
+<div id="board"></div>
+</div>
+
+<!-- 🔥 FIREBASE GOES HERE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAQLdv7vKXNC5H4d8HiGufOH9hUDgbEe5Q",
+  authDomain: "scratch-learning-de70f.firebaseapp.com",
+  projectId: "scratch-learning-de70f",
+  storageBucket: "scratch-learning-de70f.firebasestorage.app",
+  messagingSenderId: "450119202833",
+  appId: "1:450119202833:web:e4c2dbbe867a8e72d799b0",
+  measurementId: "G-NXL3ST9TP3"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// SIGNUP
+window.signup = async () => {
+  let email = emailInput.value;
+  let pass = passwordInput.value;
+  await createUserWithEmailAndPassword(auth, email, pass);
+  alert("Account created!");
+}
+
+// LOGIN
+window.login = async () => {
+  let email = emailInput.value;
+  let pass = passwordInput.value;
+  await signInWithEmailAndPassword(auth, email, pass);
+  alert("Logged in!");
+}
+
+// LOAD LEADERBOARD
+window.loadLeaderboard = async () => {
+  let board = document.getElementById("board");
+  board.innerHTML = "";
+  const querySnapshot = await getDocs(collection(db, "scores"));
+  querySnapshot.forEach(doc => {
+    let d = doc.data();
+    board.innerHTML += `<p>${d.name}: ${d.score}</p>`;
+  });
+}
+</script>
+
+</body>
+</html>
