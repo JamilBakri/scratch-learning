@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Scratch Learning PRO+</title>
+<title>🚀 Scratch Learning PRO MAX</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -27,15 +27,10 @@ body {
   width: 90%;
   max-width: 700px;
   box-shadow: 0 0 10px rgba(255,123,0,0.3);
-  transition: 0.3s;
-}
-
-.card:hover {
-  box-shadow: 0 0 20px rgba(255,123,0,0.8);
 }
 
 button {
-  padding: 12px;
+  padding: 10px;
   margin: 5px;
   background: #ff7b00;
   border: none;
@@ -44,181 +39,118 @@ button {
   cursor: pointer;
 }
 
-input {
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  width: 80%;
+iframe {
+  width: 100%;
+  height: 300px;
+  border-radius: 10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">🚀 Scratch Learning PRO+</div>
+<div class="header">🚀 Scratch Learning PRO MAX</div>
 
 <div class="card">
 <h2>👤 Profile</h2>
 <img src="jamil.jpg" width="120">
 <p><b>Jamil Bakri</b></p>
 <p>Scratch Instructor</p>
+<p id="xp">XP: 0 | Level: 1</p>
+<p id="badge">🏅 Beginner</p>
 </div>
 
+<!-- 🎥 VIDEO -->
 <div class="card">
-<h2>🎮 Game</h2>
-<iframe src="https://scratch.mit.edu/projects/10128407/embed" width="100%" height="300"></iframe>
+<h2>🎥 Learn Scratch</h2>
+<iframe src="https://www.youtube.com/embed/zOa5o9Yq_ZU"></iframe>
+</div>
+
+<!-- 🎮 MINI GAME -->
+<div class="card">
+<h2>🎮 Mini Game</h2>
+<iframe src="https://scratch.mit.edu/projects/10128407/embed"></iframe>
 </div>
 
 <!-- 🧑‍🏫 LESSONS -->
 <div class="card">
-<h2>🧑‍🏫 Step-by-Step Lessons</h2>
+<h2>🧑‍🏫 Lessons</h2>
 
-<button onclick="startLesson(1)">🎮 Game Lesson</button>
-<button onclick="startLesson(2)">🎬 Animation Lesson</button>
-<button onclick="startLesson(3)">📖 Story Lesson</button>
+<button onclick="startLesson(1)">🎮 Game</button>
+<button onclick="startLesson(2)">🎬 Animation</button>
+<button onclick="startLesson(3)">📖 Story</button>
 
-<p id="lessonText"></p>
+<div id="lessonText"></div>
 <button onclick="nextStep()">Next ➡️</button>
 </div>
 
-<div class="card">
-<h2>🧠 Quiz</h2>
+<script>
+let xp = localStorage.getItem("xp") || 0;
+let level = Math.floor(xp / 10) + 1;
 
-<p>1. Scratch is?</p>
-<input type="radio" name="q1" id="q1a"> Programming Language<br>
-<input type="radio" name="q1"> Game<br>
+updateUI();
 
-<p>2. Coding uses?</p>
-<input type="radio" name="q2"> Mouse<br>
-<input type="radio" name="q2" id="q2b"> Blocks<br><br>
+function updateUI(){
+  document.getElementById("xp").innerText = "XP: " + xp + " | Level: " + level;
 
-<input id="username" placeholder="Enter your name"><br><br>
+  let badge = "🏅 Beginner";
+  if(level >= 3) badge = "🥈 Pro";
+  if(level >= 5) badge = "🥇 Master";
 
-<button onclick="submitScore()">Submit</button>
+  document.getElementById("badge").innerText = badge;
+}
 
-<p id="badge"></p>
-</div>
-
-<div class="card">
-<h2>🏆 Leaderboard</h2>
-<button onclick="loadLeaderboard()">Load</button>
-<div id="board"></div>
-</div>
-
-<div class="card">
-<h2>📊 Score History</h2>
-<button onclick="loadHistory()">Show History</button>
-<div id="history"></div>
-</div>
-
-<div class="card">
-<button onclick="contact()">📞 Contact</button>
-</div>
-
-<audio id="clickSound" src="https://www.soundjay.com/buttons/sounds/button-16.mp3"></audio>
-<audio id="winSound" src="https://www.soundjay.com/human/sounds/applause-8.mp3"></audio>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAQLdv7vKXNC5H4d8HiGufOH9hUDgbEe5Q",
-  authDomain: "scratch-learning-de70f.firebaseapp.com",
-  projectId: "scratch-learning-de70f"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-// LESSON SYSTEM
 let lessons = {
-  1: ["Choose a sprite", "Add movement blocks", "Add controls", "Test your game"],
-  2: ["Choose character", "Add motion", "Add costumes", "Create animation"],
-  3: ["Pick characters", "Add dialogue", "Use events", "Build your story"]
+  1: [
+    {text:"Choose a sprite",img:"https://upload.wikimedia.org/wikipedia/commons/3/3a/Scratch_cat.png",task:"Add a sprite"},
+    {text:"Add movement",img:"https://upload.wikimedia.org/wikipedia/commons/6/6a/Scratch_move_block.png",task:"Move 10 steps"},
+    {text:"Add controls",img:"https://upload.wikimedia.org/wikipedia/commons/5/5c/Scratch_event_block.png",task:"Use flag"}
+  ],
+  2: [
+    {text:"Choose character",img:"https://upload.wikimedia.org/wikipedia/commons/3/3a/Scratch_cat.png",task:"Pick one"},
+    {text:"Add motion",img:"https://upload.wikimedia.org/wikipedia/commons/6/6a/Scratch_move_block.png",task:"Make it move"},
+    {text:"Add costumes",img:"https://upload.wikimedia.org/wikipedia/commons/4/4a/Scratch_costume.png",task:"Change look"}
+  ],
+  3: [
+    {text:"Pick characters",img:"https://upload.wikimedia.org/wikipedia/commons/3/3a/Scratch_cat.png",task:"Add 2"},
+    {text:"Add dialogue",img:"https://upload.wikimedia.org/wikipedia/commons/8/8f/Scratch_say_block.png",task:"Make talk"},
+    {text:"Use events",img:"https://upload.wikimedia.org/wikipedia/commons/5/5c/Scratch_event_block.png",task:"Start flag"}
+  ]
 };
 
 let currentLesson = [];
 let step = 0;
 
-window.startLesson = (type) => {
+function startLesson(type){
   currentLesson = lessons[type];
   step = 0;
-  document.getElementById("lessonText").innerText = currentLesson[step];
+  showStep();
 }
 
-window.nextStep = () => {
+function nextStep(){
   step++;
   if(step < currentLesson.length){
-    document.getElementById("lessonText").innerText = currentLesson[step];
+    showStep();
+    xp++;
+    localStorage.setItem("xp", xp);
+    level = Math.floor(xp / 10) + 1;
+    updateUI();
   } else {
-    document.getElementById("lessonText").innerText = "🎉 Lesson completed!";
+    document.getElementById("lessonText").innerHTML = "🎉 Lesson completed!";
+    xp += 5;
+    localStorage.setItem("xp", xp);
+    level = Math.floor(xp / 10) + 1;
+    updateUI();
   }
 }
 
-// QUIZ
-window.submitScore = async () => {
-  document.getElementById("clickSound").play();
-
-  let score = 0;
-  if(document.getElementById("q1a").checked) score++;
-  if(document.getElementById("q2b").checked) score++;
-
-  let name = document.getElementById("username").value;
-
-  if(name === ""){
-    alert("Enter your name!");
-    return;
-  }
-
-  await addDoc(collection(db, "scores"), {
-    name: name,
-    score: score
-  });
-
-  document.getElementById("winSound").play();
-
-  let badge = "🏅 Beginner";
-  if(score == 2) badge = "🥇 Master";
-  else if(score == 1) badge = "🥈 Pro";
-
-  document.getElementById("badge").innerText = "Your badge: " + badge;
-
-  alert("Saved!");
-}
-
-// LEADERBOARD
-window.loadLeaderboard = async () => {
-  let board = document.getElementById("board");
-  board.innerHTML = "";
-
-  const snap = await getDocs(collection(db, "scores"));
-  let arr = [];
-
-  snap.forEach(d => arr.push(d.data()));
-  arr.sort((a,b)=>b.score-a.score);
-
-  arr.forEach((d,i)=>{
-    let medal = ["🥇","🥈","🥉"][i] || "";
-    board.innerHTML += `<p>${medal} ${d.name}: ${d.score}</p>`;
-  });
-}
-
-// HISTORY
-window.loadHistory = async () => {
-  let h = document.getElementById("history");
-  h.innerHTML = "";
-
-  const snap = await getDocs(collection(db, "scores"));
-
-  snap.forEach(d=>{
-    let data = d.data();
-    h.innerHTML += `<p>${data.name} scored ${data.score}</p>`;
-  });
-}
-
-window.contact = () => {
-  alert("Jamil Bakri\n+357 94 020504");
+function showStep(){
+  let s = currentLesson[step];
+  document.getElementById("lessonText").innerHTML = `
+    <h3>${s.text}</h3>
+    <img src="${s.img}" width="120"><br>
+    <b>Mission:</b> ${s.task}
+  `;
 }
 </script>
 
