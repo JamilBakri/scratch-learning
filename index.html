@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Scratch Learning</title>
+<title>Scratch Learning PRO+</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -17,55 +17,31 @@ body {
   padding: 20px;
   text-align: center;
   font-size: 28px;
-  font-weight: bold;
-}
-
-.container {
-  display: flex;
-  flex-wrap: wrap;
-  padding: 20px;
-  justify-content: center;
-}
-
-.profile {
-  display: flex;
-  background: #222;
-  padding: 20px;
-  border-radius: 15px;
-  max-width: 700px;
-  width: 100%;
-  align-items: center;
-  gap: 20px;
-}
-
-.profile img {
-  width: 150px;
-  border-radius: 15px;
 }
 
 .card {
   background: #222;
   padding: 20px;
-  margin: 20px;
+  margin: 15px auto;
   border-radius: 15px;
+  width: 90%;
   max-width: 700px;
-  width: 100%;
+  box-shadow: 0 0 10px rgba(255,123,0,0.3);
+  transition: 0.3s;
+}
+
+.card:hover {
+  box-shadow: 0 0 20px rgba(255,123,0,0.8);
 }
 
 button {
   padding: 12px;
   margin: 5px;
-  border: none;
   background: #ff7b00;
+  border: none;
   color: white;
   border-radius: 10px;
   cursor: pointer;
-  transition: 0.3s;
-}
-
-button:hover {
-  background: #ff9500;
-  transform: scale(1.05);
 }
 
 input {
@@ -75,40 +51,28 @@ input {
   width: 80%;
 }
 
-#board p {
-  background: #333;
-  padding: 8px;
-  border-radius: 8px;
+iframe {
+  width: 100%;
+  height: 300px;
+  border-radius: 10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">🎮 Scratch Learning</div>
+<div class="header">🚀 Scratch Learning PRO+</div>
 
-<div class="container">
-
-<div class="profile">
-<img src="jamil.jpg">
-<div>
-<p><b>Name:</b> Jamil Bakri</p>
-<p><b>Age:</b> 10 years old</p>
-<p><b>Instructor:</b> Scratch</p>
-</div>
+<div class="card">
+<h2>👤 Profile</h2>
+<img src="jamil.jpg" width="120">
+<p><b>Jamil Bakri</b></p>
+<p>Scratch Instructor</p>
 </div>
 
 <div class="card">
-<h2>📚 About Scratch</h2>
-<p>Scratch is a powerful and fun programming language for kids. You can build games, animations, and stories easily.</p>
-<p>Learning coding improves creativity, logic, and problem-solving skills 🚀</p>
-</div>
-
-<div class="card">
-<h2>🎮 Tutorials</h2>
-<button onclick="openTut(1)">Game Tutorial</button>
-<button onclick="openTut(2)">Animation</button>
-<button onclick="openTut(3)">Story</button>
+<h2>🎮 Game</h2>
+<iframe src="https://scratch.mit.edu/projects/10128407/embed"></iframe>
 </div>
 
 <div class="card">
@@ -125,19 +89,28 @@ input {
 <input id="username" placeholder="Enter your name"><br><br>
 
 <button onclick="submitScore()">Submit</button>
+
+<p id="badge"></p>
 </div>
 
 <div class="card">
 <h2>🏆 Leaderboard</h2>
-<button onclick="loadLeaderboard()">Load Scores</button>
+<button onclick="loadLeaderboard()">Load</button>
 <div id="board"></div>
 </div>
 
 <div class="card">
-<button onclick="contact()">📞 Contact Us</button>
+<h2>📊 Score History</h2>
+<button onclick="loadHistory()">Show History</button>
+<div id="history"></div>
 </div>
 
+<div class="card">
+<button onclick="contact()">📞 Contact</button>
 </div>
+
+<audio id="clickSound" src="https://www.soundjay.com/buttons/sounds/button-16.mp3"></audio>
+<audio id="winSound" src="https://www.soundjay.com/human/sounds/applause-8.mp3"></audio>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -153,6 +126,8 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 window.submitScore = async () => {
+  document.getElementById("clickSound").play();
+
   let score = 0;
   if(document.getElementById("q1a").checked) score++;
   if(document.getElementById("q2b").checked) score++;
@@ -169,35 +144,47 @@ window.submitScore = async () => {
     score: score
   });
 
-  alert("Score saved! 🎉");
+  document.getElementById("winSound").play();
+
+  let badge = "🏅 Beginner";
+  if(score == 2) badge = "🥇 Master";
+  else if(score == 1) badge = "🥈 Pro";
+
+  document.getElementById("badge").innerText = "Your badge: " + badge;
+
+  alert("Saved!");
 }
 
 window.loadLeaderboard = async () => {
   let board = document.getElementById("board");
   board.innerHTML = "";
 
-  const querySnapshot = await getDocs(collection(db, "scores"));
-  let scores = [];
+  const snap = await getDocs(collection(db, "scores"));
+  let arr = [];
 
-  querySnapshot.forEach(doc => {
-    scores.push(doc.data());
+  snap.forEach(d => arr.push(d.data()));
+  arr.sort((a,b)=>b.score-a.score);
+
+  arr.forEach((d,i)=>{
+    let medal = ["🥇","🥈","🥉"][i] || "";
+    board.innerHTML += `<p>${medal} ${d.name}: ${d.score}</p>`;
   });
+}
 
-  scores.sort((a, b) => b.score - a.score);
+window.loadHistory = async () => {
+  let h = document.getElementById("history");
+  h.innerHTML = "";
 
-  scores.forEach(d => {
-    board.innerHTML += `<p>🏅 ${d.name}: ${d.score}</p>`;
+  const snap = await getDocs(collection(db, "scores"));
+
+  snap.forEach(d=>{
+    let data = d.data();
+    h.innerHTML += `<p>${data.name} scored ${data.score}</p>`;
   });
 }
 
 window.contact = () => {
   alert("Jamil Bakri\n+357 94 020504");
-}
-
-window.openTut = (type) => {
-  if(type === 1) alert("Create a game in Scratch using sprites and loops!");
-  if(type === 2) alert("Make animations using motion and looks blocks!");
-  if(type === 3) alert("Create a story using events and dialogues!");
 }
 </script>
 
