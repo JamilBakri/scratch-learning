@@ -1,7 +1,7 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html>
 <head>
-<title>🔥 Ultimate Platform</title>
+<title>🔥 Ultimate Platform (No Login)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body{font-family:Arial;background:#111;color:#fff;margin:0}
@@ -17,13 +17,8 @@ canvas{width:100%;background:#000}
 
 <div class="header">🔥 Ultimate Platform</div>
 
-<!-- ACCOUNT -->
-<div class="card">
-<h3>🌍 Account</h3>
-<input id="username" placeholder="Enter name">
-<button onclick="login()">Enter</button>
-<p id="welcome"></p>
-</div>
+<!-- PLAYER NAME -->
+<div class="card" id="playerBox"></div>
 
 <!-- CHAT -->
 <div class="card">
@@ -36,7 +31,7 @@ canvas{width:100%;background:#000}
 <!-- FRIENDS -->
 <div class="card">
 <h3>👥 Friends</h3>
-<input id="friendName">
+<input id="friendName" placeholder="Friend name">
 <button onclick="addFriend()">Add</button>
 <div id="friendsList"></div>
 </div>
@@ -62,14 +57,14 @@ canvas{width:100%;background:#000}
 
 <!-- GAME -->
 <div class="card">
-<h3>🎮 Game</h3>
+<h3>🎮 Shooting Game</h3>
 <canvas id="game" height="300"></canvas>
 <p id="score"></p>
 </div>
 
 <!-- SHOP -->
 <div class="card">
-<h3>🛍️ Skins</h3>
+<h3>🛍️ Skins Shop</h3>
 <button onclick="buySkin('orange',0)">Default</button>
 <button onclick="buySkin('blue',10)">Blue</button>
 <button onclick="buySkin('green',20)">Green</button>
@@ -98,11 +93,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const rtdb = getDatabase(app);
 
-// SAVE SCORE
-window.saveScoreOnline = async (name, score)=>{
-  await addDoc(collection(db,"scores"),{name,score});
-};
-
 // CHAT LOAD
 onValue(ref(rtdb,"chat"), snap=>{
   let box=document.getElementById("chatBox");
@@ -117,10 +107,10 @@ onValue(ref(rtdb,"chat"), snap=>{
 // SEND CHAT
 window.sendMsg = async ()=>{
   let msg=document.getElementById("chatInput").value;
-  if(!msg||!window.user)return;
+  if(!msg) return;
 
   let banned = await isBanned(user);
-  if(banned){ alert("🚫 Banned"); return; }
+  if(banned){ alert("🚫 You are banned"); return; }
 
   if(isBad(msg)){ alert("🚫 Bad word"); return; }
 
@@ -130,6 +120,7 @@ window.sendMsg = async ()=>{
 // FRIENDS
 window.addFriend=()=>{
   let f=document.getElementById("friendName").value;
+  if(!f) return;
   let list=document.getElementById("friendsList");
   list.innerHTML+=`<p onclick="selectFriend('${f}')">${f}</p>`;
 };
@@ -153,6 +144,7 @@ window.selectFriend=(f)=>{
 
 window.sendPrivate=()=>{
   let msg=document.getElementById("privateInput").value;
+  if(!msg) return;
   push(ref(rtdb,"dm/"+user+"_"+currentFriend),{user:user,msg});
 };
 
@@ -166,7 +158,7 @@ window.loadUsers=()=>{
     let list=document.getElementById("userList");
     list.innerHTML="";
     for(let u in users){
-      list.innerHTML+=`<p>${u} <button onclick="banUser('${u}')">🚫</button></p>`;
+      list.innerHTML+=`<p>${u} <button onclick="banUser('${u}')">🚫 Ban</button></p>`;
     }
   });
 };
@@ -174,6 +166,7 @@ window.loadUsers=()=>{
 // BAN
 window.banUser=(name)=>{
   set(ref(rtdb,"banned/"+name),true);
+  alert(name+" banned");
 };
 
 // CHECK BAN
@@ -184,25 +177,28 @@ window.isBanned=(name)=>{
     },{onlyOnce:true});
   });
 };
+
+// SAVE SCORE
+window.saveScoreOnline = async (name, score)=>{
+  await addDoc(collection(db,"scores"),{name,score});
+};
 </script>
 
 <script>
+// AUTO PLAYER NAME
+if(!localStorage.getItem("user")){
+  let random="Player"+Math.floor(Math.random()*9999);
+  localStorage.setItem("user",random);
+}
+window.user=localStorage.getItem("user");
+document.getElementById("playerBox").innerHTML="<h3>👤 "+user+"</h3>";
+
 // FILTER
 function isBad(t){return ["bad","hack"].some(w=>t.includes(w));}
 
-// ACCOUNT
-window.user=localStorage.getItem("user")||"";
-function login(){
-user=document.getElementById("username").value;
-localStorage.setItem("user",user);
-document.getElementById("welcome").innerText="Hi "+user;
-}
-
 // ADMIN
-let isAdmin=false;
 function adminLogin(){
 if(document.getElementById("adminPass").value==="1234"){
-isAdmin=true;
 document.getElementById("adminArea").style.display="block";
 loadUsers();
 }
@@ -251,8 +247,8 @@ if(e.y>260){lives--;}
 document.getElementById("score").innerText="Score:"+score+" ❤️"+lives;
 
 if(lives<=0){
-let n=prompt("Name:");
-if(n) saveScoreOnline(n,score);
+let n=user;
+saveScoreOnline(n,score);
 location.reload();
 }
 
@@ -267,7 +263,7 @@ if(e.key==" ")bullets.push({x:p.x+15,y:p.y});
 
 draw();
 
-// 3D
+// 3D MODE
 function start3D(){
 let c=document.getElementById("threeD");
 let ctx=c.getContext("2d");
