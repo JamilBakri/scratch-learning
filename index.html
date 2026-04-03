@@ -16,7 +16,7 @@ body {
   background: #ff7b00;
   padding: 20px;
   text-align: center;
-  font-size: 28px;
+  font-size: 26px;
 }
 
 .card {
@@ -31,4 +31,202 @@ body {
 button {
   padding: 10px;
   margin: 5px;
- 
+  background: #ff7b00;
+  border: none;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+iframe {
+  width: 100%;
+  height: 300px;
+  border-radius: 10px;
+}
+
+input {
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  width: 80%;
+}
+
+/* LEVEL UP POPUP */
+#levelUp {
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: gold;
+  color: black;
+  padding: 20px;
+  border-radius: 15px;
+  display: none;
+  font-size: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">🚀 Scratch Learning PRO MAX ULTRA</div>
+
+<div id="levelUp">🎉 LEVEL UP!</div>
+
+<div class="card">
+<h2>👤 Profile</h2>
+<img src="jamil.jpg" width="120">
+<p><b>Jamil Bakri</b></p>
+<p id="xp"></p>
+<p id="badge"></p>
+</div>
+
+<!-- VIDEO -->
+<div class="card">
+<h2>🎥 Learn Scratch</h2>
+<iframe src="https://www.youtube.com/embed/zOa5o9Yq_ZU"></iframe>
+</div>
+
+<!-- GAME -->
+<div class="card">
+<h2>🎮 Mini Game</h2>
+<iframe src="https://scratch.mit.edu/projects/10128407/embed"></iframe>
+</div>
+
+<!-- LESSONS -->
+<div class="card">
+<h2>🧑‍🏫 Lessons</h2>
+<button onclick="startLesson(1)">Game</button>
+<button onclick="startLesson(2)">Animation</button>
+<button onclick="startLesson(3)">Story</button>
+<div id="lesson"></div>
+<button onclick="next()">Next</button>
+</div>
+
+<!-- QUIZ -->
+<div class="card">
+<h2>🧠 Quiz</h2>
+
+<p>Scratch is?</p>
+<input type="radio" name="q1" id="q1a"> Programming<br>
+<input type="radio" name="q1"> Game<br>
+
+<p>Coding uses?</p>
+<input type="radio" name="q2"> Mouse<br>
+<input type="radio" name="q2" id="q2b"> Blocks<br><br>
+
+<input id="name" placeholder="Your name"><br><br>
+<button onclick="quiz()">Submit</button>
+<p id="result"></p>
+</div>
+
+<!-- DAILY -->
+<div class="card">
+<h2>🎯 Daily Mission</h2>
+<p id="daily"></p>
+<button onclick="completeDaily()">Complete</button>
+</div>
+
+<audio id="click" src="https://www.soundjay.com/buttons/sounds/button-16.mp3"></audio>
+<audio id="win" src="https://www.soundjay.com/human/sounds/applause-8.mp3"></audio>
+
+<script>
+let xp = parseInt(localStorage.getItem("xp") || 0);
+let level = Math.floor(xp/10)+1;
+let oldLevel = level;
+
+update();
+
+function update(){
+  document.getElementById("xp").innerText="XP: "+xp+" | Level: "+level;
+
+  let b="🏅 Beginner";
+  if(level>=3) b="🥈 Pro";
+  if(level>=5) b="🥇 Master";
+  document.getElementById("badge").innerText=b;
+}
+
+// LEVEL UP
+function checkLevel(){
+  level = Math.floor(xp/10)+1;
+  if(level>oldLevel){
+    document.getElementById("levelUp").style.display="block";
+    document.getElementById("win").play();
+    setTimeout(()=>{document.getElementById("levelUp").style.display="none";},2000);
+    oldLevel=level;
+  }
+}
+
+// LESSONS
+let lessons={
+1:[
+{text:"Choose sprite",img:"https://upload.wikimedia.org/wikipedia/commons/3/3a/Scratch_cat.png",task:"Add sprite"},
+{text:"Move block",img:"https://upload.wikimedia.org/wikipedia/commons/6/6a/Scratch_move_block.png",task:"Move 10"},
+{text:"Use flag",img:"https://upload.wikimedia.org/wikipedia/commons/5/5c/Scratch_event_block.png",task:"Start"}
+],
+2:[
+{text:"Character",img:"https://upload.wikimedia.org/wikipedia/commons/3/3a/Scratch_cat.png",task:"Pick"},
+{text:"Motion",img:"https://upload.wikimedia.org/wikipedia/commons/6/6a/Scratch_move_block.png",task:"Move"},
+{text:"Costume",img:"https://upload.wikimedia.org/wikipedia/commons/4/4a/Scratch_costume.png",task:"Change"}
+],
+3:[
+{text:"2 characters",img:"https://upload.wikimedia.org/wikipedia/commons/3/3a/Scratch_cat.png",task:"Add 2"},
+{text:"Talk",img:"https://upload.wikimedia.org/wikipedia/commons/8/8f/Scratch_say_block.png",task:"Say hi"},
+{text:"Event",img:"https://upload.wikimedia.org/wikipedia/commons/5/5c/Scratch_event_block.png",task:"Flag"}
+]
+};
+
+let cur=[],step=0;
+
+function startLesson(t){
+cur=lessons[t];step=0;show();
+}
+
+function next(){
+step++;
+if(step<cur.length){
+show();xp++;
+}else{
+document.getElementById("lesson").innerHTML="🎉 Done!";
+xp+=5;
+}
+save();
+}
+
+function show(){
+let s=cur[step];
+document.getElementById("lesson").innerHTML=
+`<h3>${s.text}</h3><img src="${s.img}" width=100><br>${s.task}`;
+}
+
+// QUIZ
+function quiz(){
+let s=0;
+if(q1a.checked)s++;
+if(q2b.checked)s++;
+xp+=s*5;
+document.getElementById("result").innerText="Score: "+s;
+save();
+}
+
+// DAILY
+let missions=["Create a sprite","Make movement","Add sound"];
+let daily=missions[new Date().getDate()%missions.length];
+document.getElementById("daily").innerText=daily;
+
+function completeDaily(){
+xp+=3;
+alert("Daily Done!");
+save();
+}
+
+// SAVE
+function save(){
+localStorage.setItem("xp",xp);
+checkLevel();
+update();
+}
+</script>
+
+</body>
+</html>
