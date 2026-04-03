@@ -50,12 +50,6 @@ input {
   border: none;
   width: 80%;
 }
-
-iframe {
-  width: 100%;
-  height: 300px;
-  border-radius: 10px;
-}
 </style>
 </head>
 
@@ -72,7 +66,19 @@ iframe {
 
 <div class="card">
 <h2>🎮 Game</h2>
-<iframe src="https://scratch.mit.edu/projects/10128407/embed"></iframe>
+<iframe src="https://scratch.mit.edu/projects/10128407/embed" width="100%" height="300"></iframe>
+</div>
+
+<!-- 🧑‍🏫 LESSONS -->
+<div class="card">
+<h2>🧑‍🏫 Step-by-Step Lessons</h2>
+
+<button onclick="startLesson(1)">🎮 Game Lesson</button>
+<button onclick="startLesson(2)">🎬 Animation Lesson</button>
+<button onclick="startLesson(3)">📖 Story Lesson</button>
+
+<p id="lessonText"></p>
+<button onclick="nextStep()">Next ➡️</button>
 </div>
 
 <div class="card">
@@ -125,6 +131,32 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// LESSON SYSTEM
+let lessons = {
+  1: ["Choose a sprite", "Add movement blocks", "Add controls", "Test your game"],
+  2: ["Choose character", "Add motion", "Add costumes", "Create animation"],
+  3: ["Pick characters", "Add dialogue", "Use events", "Build your story"]
+};
+
+let currentLesson = [];
+let step = 0;
+
+window.startLesson = (type) => {
+  currentLesson = lessons[type];
+  step = 0;
+  document.getElementById("lessonText").innerText = currentLesson[step];
+}
+
+window.nextStep = () => {
+  step++;
+  if(step < currentLesson.length){
+    document.getElementById("lessonText").innerText = currentLesson[step];
+  } else {
+    document.getElementById("lessonText").innerText = "🎉 Lesson completed!";
+  }
+}
+
+// QUIZ
 window.submitScore = async () => {
   document.getElementById("clickSound").play();
 
@@ -155,6 +187,7 @@ window.submitScore = async () => {
   alert("Saved!");
 }
 
+// LEADERBOARD
 window.loadLeaderboard = async () => {
   let board = document.getElementById("board");
   board.innerHTML = "";
@@ -171,6 +204,7 @@ window.loadLeaderboard = async () => {
   });
 }
 
+// HISTORY
 window.loadHistory = async () => {
   let h = document.getElementById("history");
   h.innerHTML = "";
