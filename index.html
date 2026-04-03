@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>🔥 Ultimate Game Platform</title>
+<title>🔥 Ultimate Platform</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body{font-family:Arial;background:#111;color:#fff;margin:0}
@@ -50,6 +50,16 @@ canvas{width:100%;background:#000}
 <button onclick="sendPrivate()">Send</button>
 </div>
 
+<!-- ADMIN -->
+<div class="card">
+<h3>🛠️ Admin Panel</h3>
+<input id="adminPass" placeholder="Admin password">
+<button onclick="adminLogin()">Login</button>
+<div id="adminArea" style="display:none">
+<div id="userList"></div>
+</div>
+</div>
+
 <!-- GAME -->
 <div class="card">
 <h3>🎮 Game</h3>
@@ -93,7 +103,7 @@ window.saveScoreOnline = async (name, score)=>{
   await addDoc(collection(db,"scores"),{name,score});
 };
 
-// GLOBAL CHAT
+// CHAT LOAD
 onValue(ref(rtdb,"chat"), snap=>{
   let box=document.getElementById("chatBox");
   box.innerHTML="";
@@ -104,23 +114,22 @@ onValue(ref(rtdb,"chat"), snap=>{
   }
 });
 
-// SEND MESSAGE (WITH FILTER)
-window.sendMsg=()=>{
+// SEND CHAT
+window.sendMsg = async ()=>{
   let msg=document.getElementById("chatInput").value;
   if(!msg||!window.user)return;
 
-  if(isBad(msg)){
-    alert("🚫 Bad word blocked");
-    return;
-  }
+  let banned = await isBanned(user);
+  if(banned){ alert("🚫 Banned"); return; }
 
-  push(ref(rtdb,"chat"),{user:window.user,msg});
+  if(isBad(msg)){ alert("🚫 Bad word"); return; }
+
+  push(ref(rtdb,"chat"),{user:user,msg});
 };
 
 // FRIENDS
 window.addFriend=()=>{
   let f=document.getElementById("friendName").value;
-  if(!f)return;
   let list=document.getElementById("friendsList");
   list.innerHTML+=`<p onclick="selectFriend('${f}')">${f}</p>`;
 };
@@ -144,27 +153,59 @@ window.selectFriend=(f)=>{
 
 window.sendPrivate=()=>{
   let msg=document.getElementById("privateInput").value;
-  if(!msg||!currentFriend)return;
+  push(ref(rtdb,"dm/"+user+"_"+currentFriend),{user:user,msg});
+};
 
-  push(ref(rtdb,"dm/"+user+"_"+currentFriend),{
-    user:user,msg:msg
+// ADMIN USERS
+window.loadUsers=()=>{
+  onValue(ref(rtdb,"chat"), snap=>{
+    let users={};
+    let data=snap.val()||{};
+    for(let id in data){ users[data[id].user]=true; }
+
+    let list=document.getElementById("userList");
+    list.innerHTML="";
+    for(let u in users){
+      list.innerHTML+=`<p>${u} <button onclick="banUser('${u}')">🚫</button></p>`;
+    }
+  });
+};
+
+// BAN
+window.banUser=(name)=>{
+  set(ref(rtdb,"banned/"+name),true);
+};
+
+// CHECK BAN
+window.isBanned=(name)=>{
+  return new Promise(res=>{
+    onValue(ref(rtdb,"banned/"+name),snap=>{
+      res(snap.exists());
+    },{onlyOnce:true});
   });
 };
 </script>
 
 <script>
-// BAD WORD FILTER
-function isBad(text){
-  let bad=["bad","xxx","hack"];
-  return bad.some(w=>text.toLowerCase().includes(w));
-}
+// FILTER
+function isBad(t){return ["bad","hack"].some(w=>t.includes(w));}
 
 // ACCOUNT
 window.user=localStorage.getItem("user")||"";
 function login(){
-  user=document.getElementById("username").value;
-  localStorage.setItem("user",user);
-  document.getElementById("welcome").innerText="Hi "+user;
+user=document.getElementById("username").value;
+localStorage.setItem("user",user);
+document.getElementById("welcome").innerText="Hi "+user;
+}
+
+// ADMIN
+let isAdmin=false;
+function adminLogin(){
+if(document.getElementById("adminPass").value==="1234"){
+isAdmin=true;
+document.getElementById("adminArea").style.display="block";
+loadUsers();
+}
 }
 
 // XP
@@ -173,11 +214,7 @@ let xp=parseInt(localStorage.getItem("xp")||0);
 // SHOP
 let skin=localStorage.getItem("skin")||"orange";
 function buySkin(s,c){
-  if(xp>=c){
-    xp-=c;
-    skin=s;
-    localStorage.setItem("skin",s);
-  }
+if(xp>=c){xp-=c;skin=s;localStorage.setItem("skin",s);}
 }
 
 // GAME
@@ -204,9 +241,7 @@ ctx.fillRect(e.x,e.y,20,20);
 
 bullets.forEach((b,bi)=>{
 if(b.x<e.x+20&&b.x+5>e.x&&b.y<e.y+20&&b.y+10>e.y){
-enemies.splice(i,1);
-bullets.splice(bi,1);
-score++;
+enemies.splice(i,1);bullets.splice(bi,1);score++;
 }
 });
 
@@ -216,9 +251,9 @@ if(e.y>260){lives--;}
 document.getElementById("score").innerText="Score:"+score+" ❤️"+lives;
 
 if(lives<=0){
-  let n=prompt("Name:");
-  if(n) saveScoreOnline(n,score);
-  location.reload();
+let n=prompt("Name:");
+if(n) saveScoreOnline(n,score);
+location.reload();
 }
 
 requestAnimationFrame(draw);
@@ -237,7 +272,6 @@ function start3D(){
 let c=document.getElementById("threeD");
 let ctx=c.getContext("2d");
 let x=100;
-
 function d(){
 ctx.clearRect(0,0,300,200);
 ctx.fillStyle="cyan";
