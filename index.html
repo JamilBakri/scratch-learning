@@ -3,21 +3,73 @@
 <head>
 <title>Scratch Learning</title>
 <style>
-body { font-family: Arial; background:#111; color:white; text-align:center; }
-button { padding:10px; margin:5px; border:none; background:#ff7b00; color:white; border-radius:8px; }
-.card { background:#222; padding:20px; margin:10px auto; border-radius:10px; max-width:600px; }
+body { font-family: Arial; background:#111; color:white; margin:0; }
+
+.header {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#ff7b00;
+  padding:15px;
+  font-size:28px;
+  font-weight:bold;
+}
+
+.container {
+  display:flex;
+  padding:20px;
+}
+
+.left img {
+  width:200px;
+  border-radius:10px;
+}
+
+.right {
+  margin-left:20px;
+  font-size:18px;
+}
+
+.card {
+  background:#222;
+  padding:20px;
+  margin:20px;
+  border-radius:10px;
+}
+
+button {
+  padding:10px;
+  margin:5px;
+  border:none;
+  background:#ff7b00;
+  color:white;
+  border-radius:8px;
+  cursor:pointer;
+}
+
 input { padding:8px; border-radius:5px; border:none; }
 </style>
 </head>
 
 <body>
 
-<h1>🎮 Scratch Learning</h1>
+<div class="header">🎮 Scratch Learning</div>
+
+<div class="container">
+  <div class="left">
+    <img src="jamil.jpg">
+  </div>
+  <div class="right">
+    <p><b>Name:</b> Jamil Bakri</p>
+    <p><b>Age:</b> 10 years old</p>
+    <p><b>Instructor of:</b> Scratch</p>
+  </div>
+</div>
 
 <div class="card">
 <h2>📚 About Scratch</h2>
-<p>Scratch is a fun programming language where you create games and animations using blocks.</p>
-<p>Coding helps you think, solve problems, and create amazing projects!</p>
+<p>Scratch is a fun programming language where you can create games, animations, and stories using blocks.</p>
+<p>Coding is important because it helps you think better, solve problems, and create your own projects!</p>
 </div>
 
 <div class="card">
@@ -42,6 +94,10 @@ input { padding:8px; border-radius:5px; border:none; }
 <div id="board"></div>
 </div>
 
+<div class="card">
+<button onclick="contact()">📞 Contact Us</button>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -55,7 +111,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// SUBMIT SCORE
 window.submitScore = async () => {
   let score = 0;
   if(document.getElementById("q1a").checked) score++;
@@ -76,7 +131,6 @@ window.submitScore = async () => {
   alert("Score saved!");
 }
 
-// LOAD LEADERBOARD
 window.loadLeaderboard = async () => {
   let board = document.getElementById("board");
   board.innerHTML = "";
@@ -85,6 +139,10 @@ window.loadLeaderboard = async () => {
     let d = doc.data();
     board.innerHTML += `<p>${d.name}: ${d.score}</p>`;
   });
+}
+
+window.contact = () => {
+  alert("Jamil Bakri\n+357 94 020504");
 }
 </script>
 
