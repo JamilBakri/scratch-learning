@@ -2,52 +2,84 @@
 <html>
 <head>
 <title>Scratch Learning</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
-body { font-family: Arial; background:#111; color:white; margin:0; }
+body {
+  font-family: Arial;
+  background: linear-gradient(135deg, #111, #1f1f1f);
+  color: white;
+  margin: 0;
+}
 
 .header {
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#ff7b00;
-  padding:15px;
-  font-size:28px;
-  font-weight:bold;
+  background: #ff7b00;
+  padding: 20px;
+  text-align: center;
+  font-size: 28px;
+  font-weight: bold;
 }
 
 .container {
-  display:flex;
-  padding:20px;
+  display: flex;
+  flex-wrap: wrap;
+  padding: 20px;
+  justify-content: center;
 }
 
-.left img {
-  width:200px;
-  border-radius:10px;
+.profile {
+  display: flex;
+  background: #222;
+  padding: 20px;
+  border-radius: 15px;
+  max-width: 700px;
+  width: 100%;
+  align-items: center;
+  gap: 20px;
 }
 
-.right {
-  margin-left:20px;
-  font-size:18px;
+.profile img {
+  width: 150px;
+  border-radius: 15px;
 }
 
 .card {
-  background:#222;
-  padding:20px;
-  margin:20px;
-  border-radius:10px;
+  background: #222;
+  padding: 20px;
+  margin: 20px;
+  border-radius: 15px;
+  max-width: 700px;
+  width: 100%;
 }
 
 button {
-  padding:10px;
-  margin:5px;
-  border:none;
-  background:#ff7b00;
-  color:white;
-  border-radius:8px;
-  cursor:pointer;
+  padding: 12px;
+  margin: 5px;
+  border: none;
+  background: #ff7b00;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-input { padding:8px; border-radius:5px; border:none; }
+button:hover {
+  background: #ff9500;
+  transform: scale(1.05);
+}
+
+input {
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  width: 80%;
+}
+
+#board p {
+  background: #333;
+  padding: 8px;
+  border-radius: 8px;
+}
 </style>
 </head>
 
@@ -56,20 +88,27 @@ input { padding:8px; border-radius:5px; border:none; }
 <div class="header">🎮 Scratch Learning</div>
 
 <div class="container">
-  <div class="left">
-    <img src="jamil.jpg">
-  </div>
-  <div class="right">
-    <p><b>Name:</b> Jamil Bakri</p>
-    <p><b>Age:</b> 10 years old</p>
-    <p><b>Instructor of:</b> Scratch</p>
-  </div>
+
+<div class="profile">
+<img src="jamil.jpg">
+<div>
+<p><b>Name:</b> Jamil Bakri</p>
+<p><b>Age:</b> 10 years old</p>
+<p><b>Instructor:</b> Scratch</p>
+</div>
 </div>
 
 <div class="card">
 <h2>📚 About Scratch</h2>
-<p>Scratch is a fun programming language where you can create games, animations, and stories using blocks.</p>
-<p>Coding is important because it helps you think better, solve problems, and create your own projects!</p>
+<p>Scratch is a powerful and fun programming language for kids. You can build games, animations, and stories easily.</p>
+<p>Learning coding improves creativity, logic, and problem-solving skills 🚀</p>
+</div>
+
+<div class="card">
+<h2>🎮 Tutorials</h2>
+<button onclick="openTut(1)">Game Tutorial</button>
+<button onclick="openTut(2)">Animation</button>
+<button onclick="openTut(3)">Story</button>
 </div>
 
 <div class="card">
@@ -96,6 +135,8 @@ input { padding:8px; border-radius:5px; border:none; }
 
 <div class="card">
 <button onclick="contact()">📞 Contact Us</button>
+</div>
+
 </div>
 
 <script type="module">
@@ -128,21 +169,35 @@ window.submitScore = async () => {
     score: score
   });
 
-  alert("Score saved!");
+  alert("Score saved! 🎉");
 }
 
 window.loadLeaderboard = async () => {
   let board = document.getElementById("board");
   board.innerHTML = "";
+
   const querySnapshot = await getDocs(collection(db, "scores"));
+  let scores = [];
+
   querySnapshot.forEach(doc => {
-    let d = doc.data();
-    board.innerHTML += `<p>${d.name}: ${d.score}</p>`;
+    scores.push(doc.data());
+  });
+
+  scores.sort((a, b) => b.score - a.score);
+
+  scores.forEach(d => {
+    board.innerHTML += `<p>🏅 ${d.name}: ${d.score}</p>`;
   });
 }
 
 window.contact = () => {
   alert("Jamil Bakri\n+357 94 020504");
+}
+
+window.openTut = (type) => {
+  if(type === 1) alert("Create a game in Scratch using sprites and loops!");
+  if(type === 2) alert("Make animations using motion and looks blocks!");
+  if(type === 3) alert("Create a story using events and dialogues!");
 }
 </script>
 
